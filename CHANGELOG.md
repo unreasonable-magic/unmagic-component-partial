@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0]
+
+### Added
+- Props on slots: `content_for` accepts keyword arguments
+  (`content_for :footer, align: :right do … end`) and the partial reads them
+  back with `props_for(:footer)`. Props merge across successive writes and may
+  be passed on their own to attach data without content. Existing `content_for`
+  read/write behaviour is unchanged.
+
 ## [0.1.0]
 
 ### Added
