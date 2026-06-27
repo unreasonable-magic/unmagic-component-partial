@@ -42,4 +42,38 @@ RSpec.describe Unmagic::ComponentPartial::Partial do
     partial.content_for(:footer, "<b>x</b>".html_safe)
     expect(partial.content_for(:footer)).to be_html_safe
   end
+
+  it "reads props from an unset slot as an empty hash" do
+    expect(partial.props_for(:footer)).to eq({})
+  end
+
+  it "stores content and props written together" do
+    partial.content_for(:footer, align: :right) { "Save" }
+    expect(partial.content_for(:footer)).to eq("Save")
+    expect(partial.props_for(:footer)).to eq(align: :right)
+  end
+
+  it "accepts a props-only write with no content or block" do
+    expect(partial.content_for(:footer, align: :right)).to be_nil
+    expect(partial.content_for(:footer)).to be_nil
+    expect(partial.props_for(:footer)).to eq(align: :right)
+  end
+
+  it "merges props across successive writes, last key winning" do
+    partial.content_for(:footer, a: 1)
+    partial.content_for(:footer, b: 2, a: 3)
+    expect(partial.props_for(:footer)).to eq(a: 3, b: 2)
+  end
+
+  it "reads a bare slot without hitting the write branch" do
+    expect(partial.content_for(:footer)).to be_nil
+    expect(partial.props_for(:footer)).to eq({})
+  end
+
+  it "keeps props independent across slots" do
+    partial.content_for(:header, level: 1)
+    partial.content_for(:footer, align: :right)
+    expect(partial.props_for(:header)).to eq(level: 1)
+    expect(partial.props_for(:footer)).to eq(align: :right)
+  end
 end

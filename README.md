@@ -59,13 +59,42 @@ Inside the partial, grab a handle with `component_partial`, render the body with
 The body block and the slot blocks are the *same* block, so the slots see the
 caller's locals and helpers exactly as the body does.
 
+## Props
+
+A slot can carry **props** — structured data the partial reads back to decide
+*how* to render the slot. Pass them as keyword arguments when filling the slot:
+
+```erb
+<% card.content_for :footer, align: :right do %>
+  <%= form.submit "Save" %>
+<% end %>
+```
+
+Read them back with `props_for`:
+
+```erb
+<% if card.content_for(:footer) %>
+  <footer class="card__footer card__footer--<%= card.props_for(:footer)[:align] %>">
+    <%= card.content_for(:footer) %>
+  </footer>
+<% end %>
+```
+
+`props_for` returns an empty hash for a slot that has no props, so indexing into
+it is always safe.
+
 ## API
 
 - `component_partial` — returns a fresh `Partial` bound to the current view.
-- `Partial#content_for(name, content = nil, &block)`:
+- `Partial#content_for(name, content = nil, **props, &block)`:
   - with a string or block, **writes** the slot (successive writes to the same
     slot append), and returns `nil`;
-  - with no content, **reads** the slot back, or `nil` if it was never set.
+  - `props` attach data to the slot (successive writes merge, last key winning),
+    and may be passed on their own to write props without content;
+  - with no content, block, or props, **reads** the slot back, or `nil` if it was
+    never set.
+- `Partial#props_for(name)` — reads the props attached to a slot, or `{}` if none
+  were set.
 
 ## License
 
